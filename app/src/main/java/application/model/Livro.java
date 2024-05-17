@@ -8,6 +8,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+
+
 @Entity
 @Table(name = "livros")
 public class Livro {
@@ -19,6 +21,13 @@ public class Livro {
     @ManyToOne
     @JoinColumn(name = "id_genero", nullable = false)
     private Genero genero;
+
+    @ManyToMany
+    @JoinTable(
+        name="livros_possuem_autores",
+        joinColumns = @JoinColumn(name="livro_id"),
+        inverseJoinColumns = @JoinColumn(name="autor_id"))
+    private Set<Autor> autores;
 
     public long getId() {
         return id;

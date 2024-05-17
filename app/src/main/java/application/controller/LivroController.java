@@ -11,13 +11,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import application.model.Livro;
+import application.model.Genero;
 import application.repository.LivroRepository;
+import application.repository.GeneroRepository;
+
 
 @Controller
 @RequestMapping("/livros")
 public class LivroController {
     @Autowired
     private LivroRepository livroRepo;
+
+    @Autowired
+    private GeneroRepository generoRepo;
 
     @RequestMapping("/list")
     public String list(Model ui) {
@@ -37,21 +43,25 @@ public class LivroController {
     }
 
     @RequestMapping("/insert")
-    public String insert() {
+    public String insert(Model ui) {
+        ui.addAttribute("generos", generoRepo.findAll());
         return "/livros/insert";
     }
 
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
     public String insert(
         @RequestParam("titulo") String titulo,
-        @RequestParam("genero") String genero) {
+        @RequestParam("genero") long genero) {
         
-        Livro livro = new Livro();
-        livro.setTitulo(titulo);
-        //livro.setGenero(genero);
+        Optional<Genero> resultado = generoRepo.findById(genero);
+        
+        if(resultado.isPresent()){
+            Livro livro = new Livro();
+            livro.setTitulo(titulo);
+            livro.setGenero(resultado.get());
 
-        livroRepo.save(livro);
-        
+            livroRepo.save(livro);
+        }
         return "redirect:/livros/list";
     }
 
@@ -61,8 +71,11 @@ public class LivroController {
 
         if(resultado.isPresent()) {
             ui.addAttribute("livro", resultado.get());
+            
+            ui.addAttribute("generos", generoRepo.findAll());
             return "/livros/update";    
         }
+
 
         return "redirect:/livros/list";
     }
@@ -70,15 +83,18 @@ public class LivroController {
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     public String update(@RequestParam("id") long id,
         @RequestParam("titulo") String titulo,
-        @RequestParam("genero") String genero) {
+        @RequestParam("genero") long genero) {
 
         Optional<Livro> resultado = livroRepo.findById(id);
 
         if(resultado.isPresent()) {
-            resultado.get().setTitulo(titulo);
-            //resultado.get().setGenero(genero);
-
-            livroRepo.save(resultado.get());
+            Optional<Genero> resultGenero = generoRepo.findById(genero);
+            if(resultGenero.isPresent()){
+                resultado.get().setTitulo(titulo);
+                resultado.get().setGenero(resultGenero.get());
+    
+                livroRepo.save(resultado.get());
+            }
         }
 
         return "redirect:/livros/list";
