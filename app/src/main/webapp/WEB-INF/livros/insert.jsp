@@ -9,6 +9,7 @@
         <link href="/css/bootstrap.min.css" rel="stylesheet" />
     </head>
     <body>
+        <%@ include file="../menubar.jsp" %>
         <div class="container">
             <h1>Novo Livro</h1>
             <form action="/livros/insert" method="post">
@@ -33,7 +34,7 @@
                         </div>
                     </c:forEach>
                 </div>
-                <button type="submit">Salvar</button>
+                <button type="submit" class="btn btn-success">Salvar</button>
             </form>        
         </div>
     </body>
